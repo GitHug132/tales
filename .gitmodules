@@ -1,0 +1,3 @@
+[submodule "resources/tape"]
+	path = resources/tape
+	url = git@github.com:substack/tape.git
