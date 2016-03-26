@@ -16,6 +16,9 @@ Descripcion en las siguientes lineas
 que van despues del titulo
 CR # indica el final del cuento
 
+## Comentarios
+Cualquier texto que vaya despues del simbolo # se
+considera como un comentario que no se tendra en cuenta
 
 ## Tabulaciones
 Las tabulaciones demarcan los sub-cuentos. De esta
