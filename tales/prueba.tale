@@ -1,4 +1,3 @@
-@tag
 Este es mi cuento sobre como hacer
 Y aqui viene toda una descripcion larga
 sobre como se ponen las cosas y como se
@@ -13,11 +12,10 @@ Recordemos que podemos enviar datos
   | Aqui van unas variables para pasarlas |
   Que tiene tambien su propia descripcion
   | Y que tambien acepta variables |
-  Donde la descripcion @tag4 puede estar mezclada
+  Donde la descripcion puede estar mezclada
   | Pero al final de cuentas todo llega
     A una misma parte sin importar cuantas
     lineas se tengan de espacio |
-  @tag2 @tag3
 
   Y aqui va otro subcuento
   Que tambien tiene su descripcion como debe ser
