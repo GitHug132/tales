@@ -1,4 +1,4 @@
-export default function parse(text) {
+function parse(text) {
   'use strict';
   function parseTales(text) {
     var f_c = text.replace(/#.*/g, '');

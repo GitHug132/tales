@@ -11,23 +11,8 @@
   <script src="resources/jasmine-2.4.1/jasmine-html.js"></script>
   <script src="resources/jasmine-2.4.1/boot.js"></script>
 
-  <script src="resources/parser.js"></script>
-  <!-- include source files here... -->
-  <script src="src/Player.js"></script>
-  <script src="src/Song.js"></script>
-
-  <!-- include spec files here... -->
-  <script src="spec/SpecHelper.js"></script>
-  <script src="spec/PlayerSpec.js"></script>
-
-  <script>
-    var x = fetch('tales/prueba.tale').then((response) => {
-      return response.text();
-    }).then((text) => {
-      var x = parse(text);
-      console.log(x);
-    });
-  </script>
+  <script src="src/parser.js"></script>
+  <script src="spec/parserSpec.js"></script>
 
 </head>
 
