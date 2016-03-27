@@ -16,6 +16,41 @@
 
 </head>
 
+<script>
+  function executeContext(context) {
+    console.log(context.title, context.description);
+  }
+  function runContext(items) {
+    items.forEach((item) => {
+      executeContext({ title: item.title, description: item.description });
+      if (item.items) {
+        if (item.items.length > 0) {
+          runContext(item.items);
+        }
+      }
+    });
+  }
+
+  function run(...arg) {
+    arg.forEach((url) => {
+      fetch(url).then((response) => {
+        if (response.ok) {
+          return response.text().then((text) => { return parse(text); });
+        } else {
+          throw new Error(`${response.url} ${response.statusText} (${response.status})`);
+        }
+      }).then((tale) => {
+        runContext(tale);
+      }, (error) => {
+        throw error;
+      });
+    });
+  }
+
+  run('spec/fixtures/cuento1.tale');
+  run('spec/fixtures/cuento2.tale', 'spec/fixtures/cuento3.tale');
+</script>
+
 <body>
 </body>
 </html>
