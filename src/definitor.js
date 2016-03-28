@@ -12,17 +12,16 @@ function match(tale) {
     _tale = tales[i];
     if (_tale.title === tale.title) {
       return _tale;
-    } else {
-      throw new Error('tale not found', tale.title);
     }
   }
+  throw new Error(`not found "${tale.title}"`);
 }
 
 function executeTale(tale) {
   var matched = match(tale),
       context;
   if (matched) {
-    context = tale; // linea innecesaria
+    context = JSON.parse(JSON.stringify(tale));
     matched.fn.call(null, context);
   }
   return matched;
