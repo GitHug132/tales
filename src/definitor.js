@@ -1,35 +1,39 @@
 'use strict';
 
-var definitions = [];
+var tales = [];
 
-function context(fn, title) {
-  definitions.push({ fn: fn, title: title });
+function tell(fn, title) {
+  tales.push({ fn: fn, title: title });
 }
 
-function matchContext(context) {
-  var i, definition, l = definitions.length;
+function match(tale) {
+  var i, _tale, l = tales.length;
   for (i = 0; i < l; i++) {
-    definition = definitions[i];
-    if (definition.title === context.title) {
-      return definition;
+    _tale = tales[i];
+    if (_tale.title === tale.title) {
+      return _tale;
     } else {
-      throw new Error('context not found', context.title);
+      throw new Error('tale not found', tale.title);
     }
   }
 }
 
-function executeContext(context) {
-  var matched = matchContext(context);
+function executeTale(tale) {
+  var matched = match(tale),
+      context;
+  if (matched) {
+    context = tale; // linea innecesaria
+    matched.fn.call(null, context);
+  }
   return matched;
 }
 
-function runContext(items) {
-  var parent_context = definitions;
-  items.forEach((item) => {
-    executeContext({ title: item.title, description: item.description });
-    if (item.items) {
-      if (item.items.length > 0) {
-        runContext(item.items);
+function runTales(tales) {
+  tales.forEach((tale) => {
+    executeTale({ title: tale.title, description: tale.description });
+    if (tale.items) {
+      if (tale.items.length > 0) {
+        runTales(tale.items);
       }
     }
   });
@@ -43,8 +47,8 @@ function run(...arg) {
       } else {
         throw new Error(`${response.url} ${response.statusText} (${response.status})`);
       }
-    }).then((tale) => {
-      runContext(tale);
+    }).then((tales) => {
+      runTales(tales);
     }, (error) => {
       throw error;
     });

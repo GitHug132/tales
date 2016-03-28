@@ -11,26 +11,13 @@
   <script src="resources/jasmine-2.4.1/jasmine-html.js"></script>
   <script src="resources/jasmine-2.4.1/boot.js"></script>
 
-  <script src="src/definitor.js"></script>
   <script src="src/parser.js"></script>
+  <script src="src/definitor.js"></script>
+
   <script src="spec/ParserSpec.js"></script>
+  <script src="spec/cuento3Spec.js"></script>
 
 </head>
-
-<script>
-
-  context(function() {
-    console.log('context for Titulo del cuento 1');
-
-    context(function() {
-      console.log('context for Titulo del cuento 2');
-    }, 'Titulo del cuento 2');
-
-  }, 'Titulo del cuento 1');
-
-  run('spec/fixtures/cuento1.tale');
-  run('spec/fixtures/cuento2.tale', 'spec/fixtures/cuento3.tale');
-</script>
 
 <body>
 </body>
