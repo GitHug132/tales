@@ -8,7 +8,7 @@ describe("El cuento simple 4", function() {
       done();
     }, 'Titulo del cuento 4');
 
-    run('spec/fixtures/cuento3.tale');
+    run('spec/fixtures/cuento4.tale');
   });
 });
 

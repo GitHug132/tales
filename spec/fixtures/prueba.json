@@ -1,7 +1,7 @@
 [{
     "title": "Este es mi cuento sobre como hacer",
     "description": "Y aqui viene toda una descripcion larga sobre como se ponen las cosas y como se hace de verdad software. Recordemos que podemos enviar datos",
-    "items": [{
+    "tales": [{
         "title": "Este es otro subcuento",
         "description": "Que tiene tambien su propia descripcion donde la descripcion puede estar mezclada"
     }, {
@@ -14,10 +14,10 @@
 }, {
     "title": "Que pasa si aqui ponemos otro titulo?",
     "description": "",
-    "items": [{
+    "tales": [{
         "title": "Pues escribamos aqui una pequenia historia",
         "description": "Que tenga que ver con esto",
-        "items": [{
+        "tales": [{
             "title": "Y ahora pongamos aqui otra historiecilla",
             "description": "Que si va a ser parte del contexto Y que probablemente no tenga nada que ver"
         }, {

@@ -46,7 +46,7 @@ function parse(text) {
     tale.title = title[0].trim().replace(/(  )+/g, ' ').replace(/(  )+/g, ' ');
     tale.description = description.trim();
     if (item.subtale !== "") {
-      tale.items = parse(item.subtale);
+      tale.tales = parse(item.subtale);
     }
     result.push(tale);
   });

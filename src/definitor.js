@@ -1,17 +1,17 @@
 'use strict';
 
-var tales = [];
+var definitions = [];
 
 function tell(fn, title) {
-  tales.push({ fn: fn, title: title });
+  definitions.push({ fn: fn, title: title });
 }
 
 function match(tale) {
-  var i, _tale, l = tales.length;
+  var i, definition, l = definitions.length;
   for (i = 0; i < l; i++) {
-    _tale = tales[i];
-    if (_tale.title === tale.title) {
-      return _tale;
+    definition = definitions[i];
+    if (definition.title === tale.title) {
+      return definition;
     }
   }
   throw new Error(`not found "${tale.title}"`);
@@ -27,12 +27,22 @@ function executeTale(tale) {
   return matched;
 }
 
-function runTales(tales) {
+function generateParent(current, parent) {
+  return {
+    current: current,
+    parent: function() {
+      return parent;
+    }
+  };
+}
+
+function runTales(tales, parent) {
+  console.log(parent.current, parent.parent());
   tales.forEach((tale) => {
     executeTale({ title: tale.title, description: tale.description });
-    if (tale.items) {
-      if (tale.items.length > 0) {
-        runTales(tale.items);
+    if (tale.tales) {
+      if (tale.tales.length > 0) {
+        runTales(tale.tales, generateParent(tale.tales, parent));
       }
     }
   });
@@ -47,7 +57,7 @@ function run(...arg) {
         throw new Error(`${response.url} ${response.statusText} (${response.status})`);
       }
     }).then((tales) => {
-      runTales(tales);
+      runTales(tales, generateParent(definitions, null));
     }, (error) => {
       throw error;
     });
