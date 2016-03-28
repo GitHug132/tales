@@ -1,25 +1,23 @@
 'use strict';
 
 function Context() {
-
   var definitions = {
         items:[],
         parent: null
       },
       current_parent = definitions;
 
-  function getParent() {
+  this.getParent = function getParent() {
     return current_parent;
   }
 
-  function setParent(parent) {
+  this.setParent = function setParent(parent) {
     current_parent = parent;
   }
 
 }
 
 Context.prototype.tell = function tell(fn, title) {
-  console.log('tell', title);
   var definitions = this.getParent();
   definitions.items.push({
     fn: fn,
@@ -40,25 +38,22 @@ function match(tale, definitions) {
   throw new Error(`not found "${tale.title}"`);
 }
 
-Context.prototype.executeTable = function executeTale(tale, parent) {
+Context.prototype.executeTale = function executeTale(tale, parent) {
   var matched,
       context;
 
   matched = match(tale, parent);
   if (matched) {
     this.setParent(matched);
-    console.log('set parent >', matched);
     context = JSON.parse(JSON.stringify(tale));
-    matched.fn.call(null, context);
+    matched.fn(context);
     this.setParent(parent);
-    console.log('set parent <', parent);
   }
   return matched;
 }
 
 Context.prototype.runTales = function runTales(tales, parent) {
   var executed;
-  console.log('runTales', tales, parent);
 
   tales.forEach((tale) => {
     executed = this.executeTale({ title: tale.title, description: tale.description }, parent);

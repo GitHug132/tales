@@ -10,13 +10,11 @@ describe("El cuento simple 4", function() {
     }, 'Titulo del cuento 4');
 
     env.run('spec/fixtures/cuento4.tale');
-    console.log('finalizado 1');
   });
 });
 
 describe("El cuento simple 2", function() {
   it("es procesado debidamente", function(done) {
-    console.log('comenzando 2');
     var env = new Context();
     env.tell(function(context2) {
       expect(context2.title).toBe('Titulo del cuento 2');
