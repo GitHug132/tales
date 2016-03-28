@@ -1,28 +1,32 @@
 'use strict';
 
-var definitions = {
-      items:[],
-      parent: null
-    },
-    current_parent = definitions;
+function Context() {
 
-function tell(fn, title) {
+  var definitions = {
+        items:[],
+        parent: null
+      },
+      current_parent = definitions;
+
+  function getParent() {
+    return current_parent;
+  }
+
+  function setParent(parent) {
+    current_parent = parent;
+  }
+
+}
+
+Context.prototype.tell = function tell(fn, title) {
   console.log('tell', title);
-  var definitions = getParent();
+  var definitions = this.getParent();
   definitions.items.push({
     fn: fn,
     title: title,
     items: [],
     parent: definitions
   });
-}
-
-function getParent() {
-  return current_parent;
-}
-
-function setParent(parent) {
-  current_parent = parent;
 }
 
 function match(tale, definitions) {
@@ -36,37 +40,37 @@ function match(tale, definitions) {
   throw new Error(`not found "${tale.title}"`);
 }
 
-function executeTale(tale, parent) {
+Context.prototype.executeTable = function executeTale(tale, parent) {
   var matched,
       context;
 
   matched = match(tale, parent);
   if (matched) {
-    setParent(matched);
+    this.setParent(matched);
     console.log('set parent >', matched);
     context = JSON.parse(JSON.stringify(tale));
     matched.fn.call(null, context);
-    setParent(parent);
+    this.setParent(parent);
     console.log('set parent <', parent);
   }
   return matched;
 }
 
-function runTales(tales, parent) {
+Context.prototype.runTales = function runTales(tales, parent) {
   var executed;
   console.log('runTales', tales, parent);
 
   tales.forEach((tale) => {
-    executed = executeTale({ title: tale.title, description: tale.description }, parent);
+    executed = this.executeTale({ title: tale.title, description: tale.description }, parent);
     if (tale.tales) {
       if (tale.tales.length > 0) {
-        runTales(tale.tales, executed);
+        this.runTales(tale.tales, executed);
       }
     }
   });
 }
 
-function run(...arg) {
+Context.prototype.run = function run(...arg) {
   arg.forEach((url) => {
     fetch(url).then((response) => {
       if (response.ok) {
@@ -75,7 +79,7 @@ function run(...arg) {
         throw new Error(`${response.url} ${response.statusText} (${response.status})`);
       }
     }).then((tales) => {
-      runTales(tales, getParent());
+      this.runTales(tales, this.getParent());
     }, (error) => {
       throw error;
     });
