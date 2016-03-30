@@ -1,4 +1,6 @@
 'use strict';
+var parse = require('../index.js').parse;
+
 describe('Parser', function() {
   it('process a prueba tale as expected', function(done) {
     fetch('spec/fixtures/prueba.tale').then((response) => { return response.text(); }).then((text) => {
