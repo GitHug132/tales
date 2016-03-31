@@ -17,14 +17,40 @@
     value: true
   });
   exports.parse = parse;
-  exports.Context = Context;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
   function parse(text) {
     function parseTales(text) {
-      var f_c = text.replace(/#.*/g, '');
-      var item_re = /(?:\n{0,1}(.+))+/g;
-      var tab_re = /((?:\n {2}|\n\t{1}).+)+/g;
-      var item, tab, current_item;
-      var result = [];
+      var f_c = text.replace(/#.*/g, ''),
+          item_re = /(?:\n{0,1}(.+))+/g,
+          tab_re = /((?:\n {2}|\n\t{1}).+)+/g,
+          item,
+          tab,
+          current_item,
+          result = [];
 
       tab = tab_re.exec(f_c);
       if (!tab) {
@@ -55,8 +81,8 @@
     }
     var result = [],
         tale,
-        tales;
-    var title_re = /(.+)/,
+        tales,
+        title_re = /(.+)/,
         title,
         description;
     parseTales(text).forEach(function (item) {
@@ -73,32 +99,6 @@
     return result;
   }
 
-  function Context() {
-    var definitions = {
-      items: [],
-      parent: null
-    },
-        current_parent = definitions;
-
-    this.getParent = function getParent() {
-      return current_parent;
-    };
-
-    this.setParent = function setParent(parent) {
-      current_parent = parent;
-    };
-  }
-
-  Context.prototype.tell = function tell(fn, title) {
-    var definitions = this.getParent();
-    definitions.items.push({
-      fn: fn,
-      title: title,
-      items: [],
-      parent: definitions
-    });
-  };
-
   function match(tale, definitions) {
     var i,
         definition,
@@ -112,55 +112,90 @@
     throw new Error('not found "' + tale.title + '"');
   }
 
-  Context.prototype.executeTale = function executeTale(tale, parent) {
-    var matched, context;
+  var Context = exports.Context = function () {
+    function Context() {
+      _classCallCheck(this, Context);
 
-    matched = match(tale, parent);
-    if (matched) {
-      this.setParent(matched);
-      context = JSON.parse(JSON.stringify(tale));
-      matched.fn(context);
-      this.setParent(parent);
+      var definitions = {
+        items: [],
+        parent: null
+      },
+          current_parent = definitions;
+
+      this.getParent = function getParent() {
+        return current_parent;
+      };
+      this.setParent = function setParent(parent) {
+        current_parent = parent;
+      };
     }
-    return matched;
-  };
 
-  Context.prototype.runTales = function runTales(tales, parent) {
-    var _this = this;
-
-    var executed;
-
-    tales.forEach(function (tale) {
-      executed = _this.executeTale({ title: tale.title, description: tale.description }, parent);
-      if (tale.tales) {
-        if (tale.tales.length > 0) {
-          _this.runTales(tale.tales, executed);
-        }
+    _createClass(Context, [{
+      key: 'tell',
+      value: function tell(fn, title) {
+        var definitions = this.getParent();
+        definitions.items.push({
+          fn: fn,
+          title: title,
+          items: [],
+          parent: definitions
+        });
       }
-    });
-  };
-
-  Context.prototype.run = function run() {
-    var _this2 = this;
-
-    for (var _len = arguments.length, arg = Array(_len), _key = 0; _key < _len; _key++) {
-      arg[_key] = arguments[_key];
-    }
-
-    arg.forEach(function (url) {
-      fetch(url).then(function (response) {
-        if (response.ok) {
-          return response.text().then(function (text) {
-            return parse(text);
-          });
-        } else {
-          throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+    }, {
+      key: 'executeTale',
+      value: function executeTale(tale, parent) {
+        var matched, context;
+        matched = match(tale, parent);
+        if (matched) {
+          this.setParent(matched);
+          context = JSON.parse(JSON.stringify(tale));
+          matched.fn(context);
+          this.setParent(parent);
         }
-      }).then(function (tales) {
-        _this2.runTales(tales, _this2.getParent());
-      }, function (error) {
-        throw error;
-      });
-    });
-  };
+        return matched;
+      }
+    }, {
+      key: 'runTales',
+      value: function runTales(tales, parent) {
+        var _this = this;
+
+        var executed;
+        tales.forEach(function (tale) {
+          executed = _this.executeTale({ title: tale.title, description: tale.description }, parent);
+          if (tale.tales) {
+            if (tale.tales.length > 0) {
+              _this.runTales(tale.tales, executed);
+            }
+          }
+        });
+      }
+    }, {
+      key: 'run',
+      value: function run() {
+        var _this2 = this;
+
+        for (var _len = arguments.length, arg = Array(_len), _key = 0; _key < _len; _key++) {
+          arg[_key] = arguments[_key];
+        }
+
+        arg.forEach(function (url) {
+          fetch(url).then(function (response) {
+            if (response.ok) {
+              return response.text().then(function (text) {
+                return parse(text);
+              });
+            } else {
+              throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+            }
+          }).then(function (tales) {
+            _this2.runTales(tales, _this2.getParent());
+          }, function (error) {
+            throw error;
+          });
+        });
+      }
+    }]);
+
+    return Context;
+  }();
 });
