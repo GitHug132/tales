@@ -33,9 +33,9 @@ gulp.task('test', () => {
 });
 
 gulp.task('watch', () => {
-  gulp.watch('src/*.js', ['build', 'test']);
-  gulp.watch(['spec/**/*.js', 'spec/*.js', 'spec/**/*.tale'], ['test']);
+  gulp.watch('src/*.js', ['build']);
+  gulp.watch(['spec/**/*.js', 'spec/*.js', 'spec/**/*.tale', 'index.js'], ['test']);
 });
 
 gulp.task('devel', ['default', 'watch']);
-gulp.task('default',['build', 'test']);
+gulp.task('default',['build', 'watch']);
