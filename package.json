@@ -4,10 +4,10 @@
   "description": "Tales about how to write programs",
   "main": "index.js",
   "scripts": {
-    "pretest": "npm install",
+    "prestart": "npm install",
     "build": "gulp build",
     "test": "gulp test",
-    "devel": "gulp devel"
+    "start": "gulp devel"
   },
   "repository": {
     "type": "git",
