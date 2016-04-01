@@ -101,13 +101,80 @@
   }
 
   function match(tale, definitions) {
-    var i,
-        definition,
-        l = definitions.items.length;
-    for (i = 0; i < l; i++) {
-      definition = definitions.items[i];
-      if (definition.title === tale.title) {
-        return definition;
+    var args = [],
+        arg,
+        min = Infinity,
+        params;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = definitions.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var definition = _step.value;
+
+        if (definition.title.constructor === String) {
+          if (definition.title === tale.title) {
+            return definition;
+          }
+        } else if (definition.title.constructor === RegExp) {
+          arg = tale.title.match(definition.title);
+          if (arg) {
+            if (arg[0] === arg.input) {
+              params = arg.slice(1);
+              if (min > params.length) {
+                min = params.length;
+              }
+              args.push({
+                params: params,
+                definition: definition
+              });
+            }
+          }
+        } else {
+          throw new Error('unrecognized type of data for "' + definition.title + '" at "' + tale.title + '"');
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (args.length) {
+      console.log(min);
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = args[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          definition = _step2.value;
+
+          console.log(definition);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
       }
     }
     throw new Error('not found "' + tale.title + '"');
@@ -180,17 +247,16 @@
         var result = {
           ok: false,
           tales: []
-        };
-
-        var process = function process(resolve, reject) {
+        },
+            process = function process(resolve, reject) {
           var urls = [];
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
 
           try {
-            for (var _iterator = arg[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var url = _step.value;
+            for (var _iterator3 = arg[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var url = _step3.value;
 
               urls.push(fetch(url).then(function (response) {
                 if (response.ok) {
@@ -208,16 +274,16 @@
               }));
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
+              if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
               }
             } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
+              if (_didIteratorError3) {
+                throw _iteratorError3;
               }
             }
           }
@@ -225,9 +291,10 @@
           Promise.all(urls).then(function () {
             result.ok = true;
             resolve(result);
+          }, function (error) {
+            reject(error);
           });
         };
-
         return new Promise(process);
       }
     }]);

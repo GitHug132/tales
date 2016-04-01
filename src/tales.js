@@ -55,13 +55,35 @@ export function parse(text) {
 }
 
 function match(tale, definitions) {
-  var i,
-      definition,
-      l = definitions.items.length;
-  for (i = 0; i < l; i++) {
-    definition = definitions.items[i];
-    if (definition.title === tale.title) {
-      return definition;
+  var args = [],
+      arg, min = Infinity, params;
+  for (var definition of definitions.items) {
+    if (definition.title.constructor === String) {
+      if (definition.title === tale.title) {
+        return definition;
+      }
+    } else if (definition.title.constructor === RegExp) {
+      arg = tale.title.match(definition.title);
+      if (arg) {
+        if (arg[0] === arg.input) {
+          params = arg.slice(1);
+          if (min > params.length) {
+            min = params.length;
+          }
+          args.push({
+            params: params,
+            definition: definition
+          });
+        }
+      }
+    } else {
+      throw new Error(`unrecognized type of data for "${definition.title}" at "${tale.title}"`);
+    }
+  }
+  if (args.length) {
+    console.log(min);
+    for (definition of args) {
+      console.log(definition);
     }
   }
   throw new Error(`not found "${tale.title}"`);
@@ -121,9 +143,8 @@ export class Context {
     var result = {
       ok: false,
       tales: []
-    };
-
-    var process = (resolve, reject) => {
+    },
+        process = (resolve, reject) => {
       var urls = [];
       for (var url of arg) {
         urls.push(fetch(url).then((response) => {
@@ -143,9 +164,10 @@ export class Context {
       Promise.all(urls).then(() => {
         result.ok = true;
         resolve(result);
+      }, (error) => {
+        reject(error);
       });
-    }
-
+    };
     return new Promise(process);
   }
 }
