@@ -8,7 +8,7 @@
       exports: {}
     };
     factory(mod.exports);
-    global.Context = mod.exports;
+    global.tales = mod.exports;
   }
 })(this, function (exports) {
   'use strict';
