@@ -1,6 +1,23 @@
 'use strict';
 var Context = require('../tales.js').Context;
 
+describe('El contexto', function() {
+  it('es una promesa', function(done) {
+    var env = new Context(),
+        counter = 0;
+    env.tell(function(context) {
+      counter++;
+    }, 'Titulo del cuento 4');
+
+    var p = env.run('spec/fixtures/cuento4.tale');
+    expect(p.constructor.name).toBe("Promise");
+    p.then((result) => {
+      expect(counter).toBe(result.tales.length);
+      done();
+    });
+  });
+});
+
 describe("El cuento simple 4", function() {
   it("es procesado debidamente", function(done) {
 

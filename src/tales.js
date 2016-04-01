@@ -67,6 +67,31 @@ function match(tale, definitions) {
   throw new Error(`not found "${tale.title}"`);
 }
 
+function executeTale(tale, parent) {
+  var matched,
+      context;
+  matched = match(tale, parent);
+  if (matched) {
+    this.setParent(matched);
+    context = JSON.parse(JSON.stringify(tale));
+    matched.fn(context);
+    this.setParent(parent);
+  }
+  return matched;
+}
+
+function runTales(tales, parent) {
+  var executed;
+  tales.forEach((tale) => {
+    executed = executeTale.call(this, { title: tale.title, description: tale.description }, parent);
+    if (tale.tales) {
+      if (tale.tales.length > 0) {
+        runTales.call(this, tale.tales, executed);
+      }
+    }
+  });
+}
+
 export class Context {
   constructor() {
     var definitions = {
@@ -92,46 +117,36 @@ export class Context {
       parent: definitions
     });
   }
-
-  executeTale(tale, parent) {
-    var matched,
-        context;
-    matched = match(tale, parent);
-    if (matched) {
-      this.setParent(matched);
-      context = JSON.parse(JSON.stringify(tale));
-      matched.fn(context);
-      this.setParent(parent);
-    }
-    return matched;
-  }
-
-  runTales(tales, parent) {
-    var executed;
-    tales.forEach((tale) => {
-      executed = this.executeTale({ title: tale.title, description: tale.description }, parent);
-      if (tale.tales) {
-        if (tale.tales.length > 0) {
-          this.runTales(tale.tales, executed);
-        }
-      }
-    });
-  }
-
   run(...arg) {
-    arg.forEach((url) => {
-      fetch(url).then((response) => {
-        if (response.ok) {
-          return response.text().then((text) => { return parse(text); });
-        } else {
-          throw new Error(`${response.url} ${response.statusText} (${response.status})`);
-        }
-      }).then((tales) => {
-        this.runTales(tales, this.getParent());
-      }, (error) => {
-        throw error;
+    var result = {
+      ok: false,
+      tales: []
+    };
+
+    var process = (resolve, reject) => {
+      var urls = [];
+      for (var url of arg) {
+        urls.push(fetch(url).then((response) => {
+          if (response.ok) {
+            return response.text().then((text) => { return parse(text); });
+          } else {
+            throw new Error(`${response.url} ${response.statusText} (${response.status})`);
+          }
+        }).then((tales) => {
+          runTales.call(this, tales, this.getParent());
+          result.tales.push(url);
+        }, (error) => {
+          throw error;
+        }));
+      }
+
+      Promise.all(urls).then(() => {
+        result.ok = true;
+        resolve(result);
       });
-    });
+    }
+
+    return new Promise(process);
   }
 }
 

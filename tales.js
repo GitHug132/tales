@@ -113,6 +113,32 @@
     throw new Error('not found "' + tale.title + '"');
   }
 
+  function executeTale(tale, parent) {
+    var matched, context;
+    matched = match(tale, parent);
+    if (matched) {
+      this.setParent(matched);
+      context = JSON.parse(JSON.stringify(tale));
+      matched.fn(context);
+      this.setParent(parent);
+    }
+    return matched;
+  }
+
+  function runTales(tales, parent) {
+    var _this = this;
+
+    var executed;
+    tales.forEach(function (tale) {
+      executed = executeTale.call(_this, { title: tale.title, description: tale.description }, parent);
+      if (tale.tales) {
+        if (tale.tales.length > 0) {
+          runTales.call(_this, tale.tales, executed);
+        }
+      }
+    });
+  }
+
   var Context = exports.Context = function () {
     function Context() {
       _classCallCheck(this, Context);
@@ -143,34 +169,6 @@
         });
       }
     }, {
-      key: 'executeTale',
-      value: function executeTale(tale, parent) {
-        var matched, context;
-        matched = match(tale, parent);
-        if (matched) {
-          this.setParent(matched);
-          context = JSON.parse(JSON.stringify(tale));
-          matched.fn(context);
-          this.setParent(parent);
-        }
-        return matched;
-      }
-    }, {
-      key: 'runTales',
-      value: function runTales(tales, parent) {
-        var _this = this;
-
-        var executed;
-        tales.forEach(function (tale) {
-          executed = _this.executeTale({ title: tale.title, description: tale.description }, parent);
-          if (tale.tales) {
-            if (tale.tales.length > 0) {
-              _this.runTales(tale.tales, executed);
-            }
-          }
-        });
-      }
-    }, {
       key: 'run',
       value: function run() {
         var _this2 = this;
@@ -179,21 +177,58 @@
           arg[_key] = arguments[_key];
         }
 
-        arg.forEach(function (url) {
-          fetch(url).then(function (response) {
-            if (response.ok) {
-              return response.text().then(function (text) {
-                return parse(text);
-              });
-            } else {
-              throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+        var result = {
+          ok: false,
+          tales: []
+        };
+
+        var process = function process(resolve, reject) {
+          var urls = [];
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = arg[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var url = _step.value;
+
+              urls.push(fetch(url).then(function (response) {
+                if (response.ok) {
+                  return response.text().then(function (text) {
+                    return parse(text);
+                  });
+                } else {
+                  throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+                }
+              }).then(function (tales) {
+                runTales.call(_this2, tales, _this2.getParent());
+                result.tales.push(url);
+              }, function (error) {
+                throw error;
+              }));
             }
-          }).then(function (tales) {
-            _this2.runTales(tales, _this2.getParent());
-          }, function (error) {
-            throw error;
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          Promise.all(urls).then(function () {
+            result.ok = true;
+            resolve(result);
           });
-        });
+        };
+
+        return new Promise(process);
       }
     }]);
 
