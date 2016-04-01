@@ -1,5 +1,5 @@
 'use strict';
-var parse = require('../index.js').parse;
+var parse = require('../tales.js').parse;
 
 describe('Parser', function() {
   it('process a prueba tale as expected', function(done) {

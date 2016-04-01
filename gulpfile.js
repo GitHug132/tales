@@ -10,7 +10,7 @@ gulp.task('build', () => {
       presets: ['es2015'],
       plugins: ['transform-es2015-modules-umd']
     }))
-    .pipe(concat('index.js'))
+    .pipe(concat('tales.js'))
     .pipe(gulp.dest('./'));
 });
 
@@ -34,7 +34,7 @@ gulp.task('test', () => {
 
 gulp.task('watch', () => {
   gulp.watch('src/*.js', ['build']);
-  gulp.watch(['spec/**/*.js', 'spec/*.js', 'spec/**/*.tale', 'index.js'], ['test']);
+  gulp.watch(['spec/**/*.js', 'spec/*.js', 'spec/**/*.tale', 'tales.js'], ['test']);
 });
 
 gulp.task('devel', ['default', 'watch']);

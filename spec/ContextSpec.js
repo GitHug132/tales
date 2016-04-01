@@ -1,5 +1,5 @@
 'use strict';
-var Context = require('../index.js').Context;
+var Context = require('../tales.js').Context;
 
 describe("El cuento simple 4", function() {
   it("es procesado debidamente", function(done) {
