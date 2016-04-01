@@ -1,8 +1,8 @@
 {
   "name": "tales",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tales about how to write programs",
-  "main": "index.js",
+  "main": "tales.js",
   "scripts": {
     "prestart": "npm install",
     "build": "gulp build",

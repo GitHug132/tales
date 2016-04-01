@@ -1,0 +1,22 @@
+{
+  "name": "tales",
+  "description": "Tales about how to write programs",
+  "main": "tales.js",
+  "authors": [
+    "Andres Rios <rianby64@gmail.com>"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "TDD",
+    "BDD"
+  ],
+  "homepage": "https://github.com/m3co/tales",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
