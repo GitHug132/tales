@@ -101,16 +101,82 @@
   }
 
   function match(tale, definitions) {
-    var i,
-        definition,
-        l = definitions.items.length;
-    for (i = 0; i < l; i++) {
-      definition = definitions.items[i];
-      if (definition.title === tale.title) {
-        return definition;
+    var result,
+        arg,
+        min = Infinity,
+        params;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = definitions.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var definition = _step.value;
+
+        if (definition.title.constructor === String) {
+          if (definition.title === tale.title) {
+            return definition;
+          }
+        } else if (definition.title.constructor === RegExp) {
+          arg = tale.title.match(definition.title);
+          if (arg) {
+            if (arg[0] === arg.input) {
+              params = arg.slice(1);
+              if (min > params.length) {
+                min = params.length;
+                result = definition;
+              }
+            }
+          }
+        } else {
+          throw new Error('unrecognized type of data for "' + definition.title + '" at "' + tale.title + '"');
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
       }
     }
+
+    if (result) {
+      return result;
+    }
     throw new Error('not found "' + tale.title + '"');
+  }
+
+  function executeTale(tale, parent) {
+    var matched, context;
+    matched = match(tale, parent);
+    if (matched) {
+      this.setParent(matched);
+      context = JSON.parse(JSON.stringify(tale));
+      matched.fn(context);
+      this.setParent(parent);
+    }
+    return matched;
+  }
+
+  function runTales(tales, parent) {
+    var _this = this;
+
+    var executed;
+    tales.forEach(function (tale) {
+      executed = executeTale.call(_this, { title: tale.title, description: tale.description }, parent);
+      if (tale.tales) {
+        if (tale.tales.length > 0) {
+          runTales.call(_this, tale.tales, executed);
+        }
+      }
+    });
   }
 
   var Context = exports.Context = function () {
@@ -143,34 +209,6 @@
         });
       }
     }, {
-      key: 'executeTale',
-      value: function executeTale(tale, parent) {
-        var matched, context;
-        matched = match(tale, parent);
-        if (matched) {
-          this.setParent(matched);
-          context = JSON.parse(JSON.stringify(tale));
-          matched.fn(context);
-          this.setParent(parent);
-        }
-        return matched;
-      }
-    }, {
-      key: 'runTales',
-      value: function runTales(tales, parent) {
-        var _this = this;
-
-        var executed;
-        tales.forEach(function (tale) {
-          executed = _this.executeTale({ title: tale.title, description: tale.description }, parent);
-          if (tale.tales) {
-            if (tale.tales.length > 0) {
-              _this.runTales(tale.tales, executed);
-            }
-          }
-        });
-      }
-    }, {
       key: 'run',
       value: function run() {
         var _this2 = this;
@@ -179,21 +217,58 @@
           arg[_key] = arguments[_key];
         }
 
-        arg.forEach(function (url) {
-          fetch(url).then(function (response) {
-            if (response.ok) {
-              return response.text().then(function (text) {
-                return parse(text);
-              });
-            } else {
-              throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+        var result = {
+          ok: false,
+          tales: []
+        },
+            process = function process(resolve, reject) {
+          var urls = [];
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = arg[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var url = _step2.value;
+
+              urls.push(fetch(url).then(function (response) {
+                if (response.ok) {
+                  return response.text().then(function (text) {
+                    return parse(text);
+                  });
+                } else {
+                  throw new Error(response.url + ' ' + response.statusText + ' (' + response.status + ')');
+                }
+              }).then(function (tales) {
+                runTales.call(_this2, tales, _this2.getParent());
+                result.tales.push(url);
+              }, function (error) {
+                throw error;
+              }));
             }
-          }).then(function (tales) {
-            _this2.runTales(tales, _this2.getParent());
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+
+          Promise.all(urls).then(function () {
+            result.ok = true;
+            resolve(result);
           }, function (error) {
-            throw error;
+            reject(error);
           });
-        });
+        };
+        return new Promise(process);
       }
     }]);
 

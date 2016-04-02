@@ -55,16 +55,57 @@ export function parse(text) {
 }
 
 function match(tale, definitions) {
-  var i,
-      definition,
-      l = definitions.items.length;
-  for (i = 0; i < l; i++) {
-    definition = definitions.items[i];
-    if (definition.title === tale.title) {
-      return definition;
+  var result,
+      arg, min = Infinity, params;
+  for (var definition of definitions.items) {
+    if (definition.title.constructor === String) {
+      if (definition.title === tale.title) {
+        return definition;
+      }
+    } else if (definition.title.constructor === RegExp) {
+      arg = tale.title.match(definition.title);
+      if (arg) {
+        if (arg[0] === arg.input) {
+          params = arg.slice(1);
+          if (min > params.length) {
+            min = params.length;
+            result = definition;
+          }
+        }
+      }
+    } else {
+      throw new Error(`unrecognized type of data for "${definition.title}" at "${tale.title}"`);
     }
   }
+  if (result) {
+    return result;
+  }
   throw new Error(`not found "${tale.title}"`);
+}
+
+function executeTale(tale, parent) {
+  var matched,
+      context;
+  matched = match(tale, parent);
+  if (matched) {
+    this.setParent(matched);
+    context = JSON.parse(JSON.stringify(tale));
+    matched.fn(context);
+    this.setParent(parent);
+  }
+  return matched;
+}
+
+function runTales(tales, parent) {
+  var executed;
+  tales.forEach((tale) => {
+    executed = executeTale.call(this, { title: tale.title, description: tale.description }, parent);
+    if (tale.tales) {
+      if (tale.tales.length > 0) {
+        runTales.call(this, tale.tales, executed);
+      }
+    }
+  });
 }
 
 export class Context {
@@ -92,46 +133,36 @@ export class Context {
       parent: definitions
     });
   }
-
-  executeTale(tale, parent) {
-    var matched,
-        context;
-    matched = match(tale, parent);
-    if (matched) {
-      this.setParent(matched);
-      context = JSON.parse(JSON.stringify(tale));
-      matched.fn(context);
-      this.setParent(parent);
-    }
-    return matched;
-  }
-
-  runTales(tales, parent) {
-    var executed;
-    tales.forEach((tale) => {
-      executed = this.executeTale({ title: tale.title, description: tale.description }, parent);
-      if (tale.tales) {
-        if (tale.tales.length > 0) {
-          this.runTales(tale.tales, executed);
-        }
-      }
-    });
-  }
-
   run(...arg) {
-    arg.forEach((url) => {
-      fetch(url).then((response) => {
-        if (response.ok) {
-          return response.text().then((text) => { return parse(text); });
-        } else {
-          throw new Error(`${response.url} ${response.statusText} (${response.status})`);
-        }
-      }).then((tales) => {
-        this.runTales(tales, this.getParent());
+    var result = {
+      ok: false,
+      tales: []
+    },
+        process = (resolve, reject) => {
+      var urls = [];
+      for (var url of arg) {
+        urls.push(fetch(url).then((response) => {
+          if (response.ok) {
+            return response.text().then((text) => { return parse(text); });
+          } else {
+            throw new Error(`${response.url} ${response.statusText} (${response.status})`);
+          }
+        }).then((tales) => {
+          runTales.call(this, tales, this.getParent());
+          result.tales.push(url);
+        }, (error) => {
+          throw error;
+        }));
+      }
+
+      Promise.all(urls).then(() => {
+        result.ok = true;
+        resolve(result);
       }, (error) => {
-        throw error;
+        reject(error);
       });
-    });
+    };
+    return new Promise(process);
   }
 }
 
