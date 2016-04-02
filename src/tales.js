@@ -55,7 +55,7 @@ export function parse(text) {
 }
 
 function match(tale, definitions) {
-  var args = [],
+  var result,
       arg, min = Infinity, params;
   for (var definition of definitions.items) {
     if (definition.title.constructor === String) {
@@ -69,22 +69,16 @@ function match(tale, definitions) {
           params = arg.slice(1);
           if (min > params.length) {
             min = params.length;
+            result = definition;
           }
-          args.push({
-            params: params,
-            definition: definition
-          });
         }
       }
     } else {
       throw new Error(`unrecognized type of data for "${definition.title}" at "${tale.title}"`);
     }
   }
-  if (args.length) {
-    console.log(min);
-    for (definition of args) {
-      console.log(definition);
-    }
+  if (result) {
+    return result;
   }
   throw new Error(`not found "${tale.title}"`);
 }

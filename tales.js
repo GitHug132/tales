@@ -101,7 +101,7 @@
   }
 
   function match(tale, definitions) {
-    var args = [],
+    var result,
         arg,
         min = Infinity,
         params;
@@ -124,11 +124,8 @@
               params = arg.slice(1);
               if (min > params.length) {
                 min = params.length;
+                result = definition;
               }
-              args.push({
-                params: params,
-                definition: definition
-              });
             }
           }
         } else {
@@ -150,32 +147,8 @@
       }
     }
 
-    if (args.length) {
-      console.log(min);
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = args[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          definition = _step2.value;
-
-          console.log(definition);
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
+    if (result) {
+      return result;
     }
     throw new Error('not found "' + tale.title + '"');
   }
@@ -250,13 +223,13 @@
         },
             process = function process(resolve, reject) {
           var urls = [];
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
 
           try {
-            for (var _iterator3 = arg[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var url = _step3.value;
+            for (var _iterator2 = arg[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var url = _step2.value;
 
               urls.push(fetch(url).then(function (response) {
                 if (response.ok) {
@@ -274,16 +247,16 @@
               }));
             }
           } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
+              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
               }
             } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
+              if (_didIteratorError2) {
+                throw _iteratorError2;
               }
             }
           }

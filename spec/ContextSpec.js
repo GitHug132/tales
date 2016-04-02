@@ -43,24 +43,25 @@ describe('El contexto', function() {
       done();
     });
   });
-  it('procesa un titulo segun una regex', function(done) {
+  it('procesa un titulo segun una regex eligiendo la de menor numero de parametros', function(done) {
     var env = new Context();
-
+    var executed = {};
     env.tell((context) => {
-      console.log('cuento 2');
+      executed.c = 1;
     }, 'Titulo del cuento 2');
 
     env.tell((context) => {
-      console.log('cuento 4');
+      executed.caa = executed.caa || 0;
+      executed.caa++;
     }, /Titulo del (\w+) (\d+)/);
 
     env.tell((context) => {
-      console.log('cuento 3');
+      executed.ca = executed.ca || 0;
+      executed.ca++;
     }, /Titulo del cuento (\d+)/);
 
     env.run('spec/fixtures/cuento2.tale').then(() => {
-      done();
-    }, (error) => {
+      expect(executed).toEqual(jasmine.objectContaining({ c: 1, ca: 2 }));
       done();
     });
   });
