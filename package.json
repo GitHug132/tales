@@ -1,6 +1,6 @@
 {
   "name": "tales",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tales about how to write programs",
   "main": "tales.js",
   "scripts": {
