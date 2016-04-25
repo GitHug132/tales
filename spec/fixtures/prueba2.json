@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Este es mi cuento sobre como hacer",
+    "description": "Y aqui viene toda una descripcion larga\nsobre como se ponen las cosas y como se\nhace de verdad software.\nRecordemos que podemos enviar datos",
+    "tales": [
+      {
+        "title": "Este es otro subcuento",
+        "description": "Que tiene tambien su propia descripcion\ndonde la descripcion puede estar mezclada"
+      },
+      {
+        "title": "Y aqui va otro subcuento",
+        "description": "Que tambien tiene su descripcion como debe ser\nPues viene en un mismo parrafo"
+      }
+    ]
+  }
+]

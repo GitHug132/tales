@@ -89,7 +89,7 @@
     parseTales(text).forEach(function (item) {
       tale = {};
       title = title_re.exec(item.tale);
-      description = item.tale.replace(title[0], '').trim().replace(/\n/g, ' ').replace(/(  )+/g, ' ').replace(/(  )+/g, ' ');
+      description = item.tale.replace(title[0], '').trim().replace(/(  )+/g, ' ').replace(/(  )+/g, ' ');
       tale.title = title[0].trim().replace(/(  )+/g, ' ').replace(/(  )+/g, ' ');
       tale.description = description.trim();
       if (item.subtale !== "") {
